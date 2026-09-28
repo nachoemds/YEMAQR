@@ -28,9 +28,3 @@ Las Netlify Functions requieren deploy desde Git (o CLI); arrastrar la carpeta n
 - Nunca pongas la `service_role` key en el frontend ni en un repo público.
 - Si borrás un QR, los ya impresos dejan de funcionar.
 - Algunas apps de mensajería o antivirus "previsualizan" links y pueden sumar escaneos de más.
-
-
-
-YEMAQR
-Password: pesos-taxi-perra-taxi
-sin guiones

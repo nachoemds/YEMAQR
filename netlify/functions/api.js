@@ -1,8 +1,9 @@
 // API del panel: login + CRUD de códigos QR
 const crypto = require('crypto');
 
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY;
+// Limpia espacios, barras finales y '/rest/v1' por si se pegó de más
+const SUPABASE_URL = (process.env.SUPABASE_URL || '').trim().replace(/\/rest\/v1\/?$/, '').replace(/\/+$/, '');
+const SUPABASE_KEY = (process.env.SUPABASE_SERVICE_KEY || '').trim();
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 const SESSION_SECRET = process.env.SESSION_SECRET;
 const SESSION_DAYS = 30;

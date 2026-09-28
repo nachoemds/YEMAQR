@@ -1,6 +1,7 @@
 // GET /r/<codigo>  ->  suma 1 escaneo y redirige (302) al destino actual
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY;
+// Limpia espacios, barras finales y '/rest/v1' por si se pegó de más
+const SUPABASE_URL = (process.env.SUPABASE_URL || '').trim().replace(/\/rest\/v1\/?$/, '').replace(/\/+$/, '');
+const SUPABASE_KEY = (process.env.SUPABASE_SERVICE_KEY || '').trim();
 
 exports.handler = async (event) => {
   const code = decodeURIComponent((event.path || '').split('/').filter(Boolean).pop() || '');
