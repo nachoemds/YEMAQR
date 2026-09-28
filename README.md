@@ -1,6 +1,13 @@
-# Panel de códigos QR
+# YemaQR
 
 QR dinámicos: el QR apunta a `tu-sitio.netlify.app/r/<codigo>`, que cuenta el escaneo y redirige al destino actual (editable).
+
+## Novedades de esta versión
+- Título y carpeta por código (para identificar y filtrar).
+- Filtro por carpeta en la barra de búsqueda.
+- Clic en la miniatura de cualquier código abre una vista previa más grande para escanear sin descargar.
+
+Si ya tenías el panel funcionando, solo hace falta volver a correr `supabase.sql` (agrega las columnas nuevas sin borrar nada) y subir los archivos actualizados a GitHub.
 
 ## 1. Supabase (base de datos, gratis)
 1. Crear cuenta en supabase.com → **New project** (guardá la contraseña de la DB, no la vas a usar acá).

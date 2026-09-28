@@ -3,8 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Códigos QR</title>
+<title>YemaQR</title>
 <meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='42' fill='%23FFC229'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -249,7 +250,34 @@
     font-size:12.5px;
     color:var(--ink-faint);
     font-family:var(--font-mono);
+    white-space:nowrap;
   }
+  .folder-select{
+    font-family:var(--font-ui);
+    font-size:13px;
+    padding:9px 10px;
+    border-radius:var(--radius-sm);
+    border:1px solid var(--line-strong);
+    background:var(--paper-raised);
+    color:var(--ink);
+    outline:none;
+    max-width:180px;
+  }
+  .folder-select:focus{ border-color:var(--signal); }
+  .folder-tag{
+    display:inline-block;
+    font-size:11.5px;
+    font-weight:600;
+    padding:3px 9px;
+    border-radius:100px;
+    background:var(--signal-soft);
+    color:var(--signal-ink);
+    white-space:nowrap;
+  }
+  .title-cell{ line-height:1.35; }
+  .title-cell .title-main{ font-weight:600; font-size:14px; }
+  .title-cell .title-main.untitled{ color:var(--ink-faint); font-weight:500; font-style:italic; }
+  .title-cell .code-cell{ display:block; margin-top:1px; }
 
   /* ---------- Table (desktop) ---------- */
   .table-wrap{
@@ -285,7 +313,10 @@
     background:#fff;
     padding:3px;
     display:block;
+    cursor:pointer;
+    transition:border-color .15s ease, transform .1s ease;
   }
+  .qr-thumb:hover{ border-color:var(--signal); transform:scale(1.06); }
   .code-cell{
     font-family:var(--font-mono);
     font-size:13px;
@@ -359,7 +390,8 @@
       display:flex;
       gap:12px;
     }
-    .mcard img, .mcard canvas{ width:56px;height:56px;flex-shrink:0; border:1px solid var(--line); border-radius:6px; background:#fff; padding:3px; }
+    .mcard img, .mcard canvas{ width:56px;height:56px;flex-shrink:0; border:1px solid var(--line); border-radius:6px; background:#fff; padding:3px; cursor:pointer; }
+    .mcard-folder{ margin-bottom:4px; }
     .mcard-body{ flex:1; min-width:0; }
     .mcard-top{ display:flex; justify-content:space-between; gap:8px; align-items:baseline; }
     .mcard-code{ font-family:var(--font-mono); font-size:12.5px; color:var(--ink-soft); }
@@ -410,12 +442,43 @@
   .link-out:hover{ color:var(--ink); }
   .field input[type=password]{ width:100%; font-size:14px; padding:11px 12px; border-radius:var(--radius-sm); border:1px solid var(--line-strong); background:var(--paper-raised); color:var(--ink); outline:none; }
   .field input[type=password]:focus{ border-color:var(--signal); box-shadow:0 0 0 3px var(--signal-soft); }
+
+  /* ---------- Modal de vista previa ---------- */
+  .modal{
+    position:fixed; inset:0; z-index:45;
+    background:rgba(15,16,20,.55);
+    display:none; align-items:center; justify-content:center;
+    padding:20px;
+  }
+  .modal.show{ display:flex; }
+  .modal-box{
+    position:relative;
+    width:100%; max-width:340px;
+    background:var(--paper-raised);
+    border:1px solid var(--line);
+    border-radius:var(--radius-md);
+    padding:26px 22px 22px;
+    display:flex; flex-direction:column; align-items:center;
+    text-align:center;
+    box-shadow:0 20px 50px -12px rgba(0,0,0,.35);
+  }
+  .modal-close{ position:absolute; top:10px; right:10px; }
+  .modal-qr{
+    background:#fff; border:1px solid var(--line); border-radius:10px;
+    padding:14px; margin-bottom:14px;
+  }
+  .modal-qr canvas{ display:block; }
+  .modal-title{ font-size:16px; font-weight:700; margin:0 0 2px; }
+  .modal-code{ font-family:var(--font-mono); font-size:12px; color:var(--ink-faint); margin-bottom:8px; }
+  .modal-dest{ font-family:var(--font-mono); font-size:13px; color:var(--ink-soft); word-break:break-all; margin-bottom:10px; }
+  .modal-stats{ font-size:12.5px; color:var(--ink-faint); margin-bottom:16px; }
+  .modal-actions{ display:flex; gap:8px; flex-wrap:wrap; justify-content:center; }
 </style>
 </head>
 <body>
 <div class="login" id="login">
   <div class="login-box">
-    <div class="brand"><div class="brand-mark"><span></span><span></span><span></span><span></span></div><div><h1>Códigos QR</h1><p>Ingresá para continuar</p></div></div>
+    <div class="brand"><div class="brand-mark"><span></span><span></span><span></span><span></span></div><div><h1>YemaQR</h1><p>Ingresá para continuar</p></div></div>
     <div class="field">
       <label for="pw-input">Contraseña</label>
       <input type="password" id="pw-input" autocomplete="current-password">
@@ -430,8 +493,8 @@
     <div class="brand">
       <div class="brand-mark"><span></span><span></span><span></span><span></span></div>
       <div>
-        <h1>Códigos QR</h1>
-        <p>Panel propio</p>
+        <h1>YemaQR</h1>
+        <p>by Blacko</p>
       </div>
     </div>
     <div style="display:flex;gap:12px;align-items:center;">
@@ -447,9 +510,18 @@
     <div class="panel-grid">
       <div>
         <div class="field">
+          <label for="title-input">Título</label>
+          <input type="text" id="title-input" placeholder="Ej: Menú mesa 4" autocomplete="off" maxlength="120">
+        </div>
+        <div class="field" style="margin-top:14px;">
           <label for="dest-input">URL de destino</label>
           <input type="text" id="dest-input" placeholder="https://tusitio.com/promo" autocomplete="off">
           <div class="field-note">El QR apunta a un link corto tuyo. Después podés cambiar este destino sin tocar el QR impreso.</div>
+        </div>
+        <div class="field" style="margin-top:14px;">
+          <label for="folder-input">Carpeta</label>
+          <input type="text" id="folder-input" placeholder="Ej: Sucursal Centro" autocomplete="off" list="folder-options" maxlength="60">
+          <datalist id="folder-options"></datalist>
         </div>
         <div class="panel-actions">
           <button class="btn btn-primary" id="create-btn">Crear código</button>
@@ -465,8 +537,11 @@
   <div class="toolbar">
     <div class="search">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-      <input type="text" id="search-input" placeholder="Buscar por código o destino">
+      <input type="text" id="search-input" placeholder="Buscar por título, código o destino">
     </div>
+    <select class="folder-select" id="folder-filter">
+      <option value="">Todas las carpetas</option>
+    </select>
     <span class="count-tag" id="count-tag">0 códigos</span>
   </div>
 
@@ -475,7 +550,8 @@
       <thead>
         <tr>
           <th></th>
-          <th>Código</th>
+          <th>Título / Código</th>
+          <th>Carpeta</th>
           <th>Destino</th>
           <th class="num">Escaneos</th>
           <th>Creado</th>
@@ -496,6 +572,24 @@
 
 </div>
 
+<div class="modal" id="preview-modal">
+  <div class="modal-box">
+    <button class="icon-btn modal-close" id="modal-close" aria-label="Cerrar">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+    <div class="modal-qr"><canvas id="modal-canvas"></canvas></div>
+    <h3 class="modal-title" id="modal-title"></h3>
+    <div class="modal-code" id="modal-code"></div>
+    <div class="modal-dest" id="modal-dest"></div>
+    <div class="modal-stats" id="modal-stats"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost btn-sm" id="modal-svg-btn">Descargar SVG</button>
+      <button class="btn btn-ghost btn-sm" id="modal-jpg-btn">Descargar JPG</button>
+      <button class="btn btn-ghost btn-sm" id="modal-copy-btn">Copiar link</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -507,8 +601,11 @@
   function $(id){return document.getElementById(id);}
   var toggleBtn=$('toggle-panel-btn'), emptyCreateBtn=$('empty-create-btn'), cancelBtn=$('cancel-btn'), createBtn=$('create-btn');
   var panel=$('create-panel'), destInput=$('dest-input'), previewHolder=$('preview-holder'), searchInput=$('search-input');
+  var titleInput=$('title-input'), folderInput=$('folder-input'), folderOptions=$('folder-options'), folderFilter=$('folder-filter');
   var tableBody=$('table-body'), mobileList=$('mobile-list'), tableWrap=$('table-wrap'), emptyState=$('empty-state');
   var countTag=$('count-tag'), toast=$('toast'), loginEl=$('login'), pwInput=$('pw-input'), loginErr=$('login-err');
+  var previewModal=$('preview-modal'), modalCanvas=$('modal-canvas'), modalTitle=$('modal-title'), modalCode=$('modal-code');
+  var modalDest=$('modal-dest'), modalStats=$('modal-stats');
 
   function getToken(){ try{return localStorage.getItem(TOKEN_KEY);}catch(e){return null;} }
   function setToken(t){ try{ t?localStorage.setItem(TOKEN_KEY,t):localStorage.removeItem(TOKEN_KEY);}catch(e){} }
@@ -558,9 +655,9 @@
 
   // ---------- panel crear ----------
   function openPanel(){
-    panel.classList.add('open'); destInput.value='';
+    panel.classList.add('open'); destInput.value=''; titleInput.value=''; folderInput.value='';
     previewHolder.innerHTML='<div class="preview-empty">El QR se genera al crear el código</div>';
-    destInput.focus();
+    titleInput.focus();
   }
   function closePanel(){ panel.classList.remove('open'); }
   toggleBtn.addEventListener('click',function(){ panel.classList.contains('open')?closePanel():openPanel(); });
@@ -571,7 +668,7 @@
     var val=destInput.value.trim();
     if(!val){ destInput.focus(); return; }
     createBtn.disabled=true;
-    api('POST','qrs',{destination:val}).then(function(row){
+    api('POST','qrs',{destination:val, title:titleInput.value.trim(), folder:folderInput.value.trim()}).then(function(row){
       items.unshift(row); render(); closePanel(); showToast('Código creado');
     }).catch(function(e){ showToast(e.message); }).then(function(){ createBtn.disabled=false; });
   });
@@ -600,23 +697,37 @@
   }
 
   // ---------- editar / borrar ----------
-  function startEditDest(code,container,isMobile){
-    var item=items.find(function(i){return i.code===code;}); if(!item) return;
-    var input=document.createElement('input'); input.type='text'; input.className='dest-input'; input.value=item.destination;
-    if(isMobile) input.style.width='100%';
+  // field: 'destination' | 'title' | 'folder'
+  function startEditField(item,field,container,opts){
+    opts=opts||{};
+    var input=document.createElement('input'); input.type='text';
+    input.className=opts.inputClass||'dest-input';
+    input.value=item[field]||'';
+    input.placeholder=opts.placeholder||'';
+    if(field==='folder'){ input.setAttribute('list','folder-options'); }
+    if(opts.fullWidth) input.style.width='100%';
     container.innerHTML=''; container.appendChild(input); input.focus(); input.select();
     var done=false;
     function commit(){
       if(done) return; done=true;
       var val=input.value.trim();
-      if(val && val!==item.destination){
-        api('PATCH','qrs/'+code,{destination:val}).then(function(row){
-          Object.assign(item,row); showToast('Destino actualizado'); render();
+      var current=item[field]||'';
+      if(val!==current){
+        var patch={}; patch[field]=(field==='destination')?val:val; // el backend normaliza cada uno
+        if(field==='destination' && !val){ render(); return; } // el destino no puede quedar vacío
+        api('PATCH','qrs/'+item.code,patch).then(function(row){
+          Object.assign(item,row);
+          showToast(field==='destination'?'Destino actualizado':field==='title'?'Título actualizado':'Carpeta actualizada');
+          render();
         }).catch(function(e){ showToast(e.message); render(); });
       } else render();
     }
     input.addEventListener('keydown',function(e){ if(e.key==='Enter') commit(); if(e.key==='Escape'){done=true;render();} });
     input.addEventListener('blur',commit);
+  }
+  function startEditDest(code,container,isMobile){
+    var item=items.find(function(i){return i.code===code;}); if(!item) return;
+    startEditField(item,'destination',container,{inputClass:'dest-input',fullWidth:isMobile});
   }
   function deleteItem(code){
     if(!confirm('¿Eliminar este código? Los QR ya impresos dejarán de funcionar.')) return;
@@ -628,6 +739,26 @@
     var t=shortUrl(item.code);
     (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(function(){showToast('Link copiado');}).catch(function(){showToast(t);});
   }
+
+  // ---------- modal de vista previa ----------
+  var modalItem=null;
+  function openPreview(item){
+    modalItem=item;
+    modalTitle.textContent=item.title||'(sin título)';
+    modalTitle.classList.toggle('untitled',!item.title);
+    modalCode.textContent=item.code+(item.folder?' · '+item.folder:'');
+    modalDest.textContent=item.destination.replace(/^https?:\/\//,'');
+    modalStats.textContent=item.scans+(item.scans===1?' escaneo':' escaneos')+' · creado '+fmtDate(item.created_at);
+    renderQRTo(modalCanvas,item,220);
+    previewModal.classList.add('show');
+  }
+  function closePreview(){ previewModal.classList.remove('show'); modalItem=null; }
+  $('modal-close').addEventListener('click',closePreview);
+  previewModal.addEventListener('click',function(e){ if(e.target===previewModal) closePreview(); });
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape' && previewModal.classList.contains('show')) closePreview(); });
+  $('modal-svg-btn').addEventListener('click',function(){ if(modalItem) downloadSVG(modalItem); });
+  $('modal-jpg-btn').addEventListener('click',function(){ if(modalItem) downloadJPG(modalItem); });
+  $('modal-copy-btn').addEventListener('click',function(){ if(modalItem) copyLink(modalItem); });
 
   function icon(name){
     var i={
@@ -643,10 +774,25 @@
   }
   function td(cls,text){ var t=document.createElement('td'); if(cls) t.className=cls; if(text!==undefined) t.textContent=text; return t; }
 
+  function populateFolderFilter(){
+    var folders=Array.from(new Set(items.map(function(i){return i.folder;}).filter(Boolean))).sort(function(a,b){return a.localeCompare(b,'es');});
+    var current=folderFilter.value;
+    folderFilter.innerHTML='<option value="">Todas las carpetas</option>'+folders.map(function(f){return '<option value="'+f.replace(/"/g,'&quot;')+'">'+f+'</option>';}).join('');
+    if(folders.indexOf(current)>-1) folderFilter.value=current;
+    folderOptions.innerHTML=folders.map(function(f){return '<option value="'+f.replace(/"/g,'&quot;')+'">';}).join('');
+  }
+
   function render(){
+    populateFolderFilter();
     var q=searchInput.value.trim().toLowerCase();
-    var filtered=items.filter(function(i){ return !q||i.destination.toLowerCase().indexOf(q)>-1||i.code.toLowerCase().indexOf(q)>-1; });
-    countTag.textContent=items.length+(items.length===1?' código':' códigos');
+    var fFolder=folderFilter.value;
+    var filtered=items.filter(function(i){
+      var matchesQ=!q || i.destination.toLowerCase().indexOf(q)>-1 || i.code.toLowerCase().indexOf(q)>-1 ||
+        (i.title||'').toLowerCase().indexOf(q)>-1 || (i.folder||'').toLowerCase().indexOf(q)>-1;
+      var matchesFolder=!fFolder || i.folder===fFolder;
+      return matchesQ && matchesFolder;
+    });
+    countTag.textContent=(filtered.length!==items.length ? filtered.length+' de '+items.length : items.length)+(items.length===1?' código':' códigos');
 
     if(items.length===0){
       tableWrap.style.display='none'; mobileList.style.display='none'; emptyState.style.display='block'; return;
@@ -656,9 +802,22 @@
     tableBody.innerHTML='';
     filtered.forEach(function(item){
       var tr=document.createElement('tr');
-      var tdThumb=td(); var canvas=document.createElement('canvas'); canvas.className='qr-thumb'; tdThumb.appendChild(canvas); tr.appendChild(tdThumb);
+
+      var tdThumb=td(); var canvas=document.createElement('canvas'); canvas.className='qr-thumb'; canvas.title='Ver más grande';
+      canvas.addEventListener('click',function(){openPreview(item);});
+      tdThumb.appendChild(canvas); tr.appendChild(tdThumb);
       renderQRTo(canvas,item,38);
-      tr.appendChild(td('code-cell',item.code));
+
+      var tdTitle=td('title-cell'); var tWrap=document.createElement('div'); tWrap.style.display='flex'; tWrap.style.alignItems='center'; tWrap.style.gap='4px';
+      var tMain=document.createElement('span'); tMain.className='title-main'+(item.title?'':' untitled'); tMain.textContent=item.title||'Sin título';
+      tWrap.appendChild(tMain); tWrap.appendChild(iconBtn('edit','Editar título',function(){startEditField(item,'title',tWrap,{inputClass:'dest-input',placeholder:'Título'});}));
+      var codeLine=document.createElement('span'); codeLine.className='code-cell'; codeLine.textContent=item.code;
+      tdTitle.appendChild(tWrap); tdTitle.appendChild(codeLine); tr.appendChild(tdTitle);
+
+      var tdFolder=td(); var fWrap=document.createElement('div'); fWrap.style.display='flex'; fWrap.style.alignItems='center'; fWrap.style.gap='4px';
+      if(item.folder){ var chip=document.createElement('span'); chip.className='folder-tag'; chip.textContent=item.folder; fWrap.appendChild(chip); }
+      fWrap.appendChild(iconBtn('edit','Editar carpeta',function(){startEditField(item,'folder',fWrap,{inputClass:'dest-input',placeholder:'Carpeta'});}));
+      tdFolder.appendChild(fWrap); tr.appendChild(tdFolder);
 
       var tdDest=td(); var wrap=document.createElement('div'); wrap.className='dest-cell';
       var txt=document.createElement('span'); txt.className='dest-text'; txt.textContent=item.destination.replace(/^https?:\/\//,''); txt.title=item.destination;
@@ -681,10 +840,11 @@
     mobileList.innerHTML='';
     filtered.forEach(function(item){
       var card=document.createElement('div'); card.className='mcard';
-      var canvas=document.createElement('canvas'); card.appendChild(canvas);
+      var canvas=document.createElement('canvas'); canvas.addEventListener('click',function(){openPreview(item);}); card.appendChild(canvas);
       var body=document.createElement('div'); body.className='mcard-body';
+      if(item.folder){ var chipM=document.createElement('span'); chipM.className='folder-tag mcard-folder'; chipM.textContent=item.folder; body.appendChild(chipM); }
       var top=document.createElement('div'); top.className='mcard-top';
-      var c=document.createElement('span'); c.className='mcard-code'; c.textContent=item.code;
+      var c=document.createElement('span'); c.className='mcard-code'; c.textContent=item.title?item.title+' · '+item.code:item.code;
       var sc=document.createElement('span'); sc.className='mcard-scans'; sc.textContent=item.scans+(item.scans===1?' escaneo':' escaneos');
       top.appendChild(c); top.appendChild(sc);
       var d=document.createElement('div'); d.className='mcard-dest'; d.textContent=item.destination.replace(/^https?:\/\//,'');
@@ -699,6 +859,7 @@
     });
   }
   searchInput.addEventListener('input',render);
+  folderFilter.addEventListener('change',render);
 
   if(typeof QRCode==='undefined'){ showToast('Falta qrcode.min.js: revisá que el deploy en Netlify haya terminado bien'); }
   if(getToken()){ hideLogin(); loadItems(); } else { showLogin(); }

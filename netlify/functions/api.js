@@ -69,6 +69,10 @@ function normalizeUrl(u) {
   if (!/^https?:\/\//i.test(v)) v = 'https://' + v;
   try { new URL(v); return v; } catch { return null; }
 }
+function normalizeText(v, maxLen) {
+  const s = String(v == null ? '' : v).trim().slice(0, maxLen);
+  return s || null;
+}
 
 exports.handler = async (event) => {
   const route = (event.path || '').replace(/^.*\/api\/?/, '').replace(/\/$/, ''); // "login", "qrs", "qrs/abc123"
@@ -96,11 +100,13 @@ exports.handler = async (event) => {
     if (route === 'qrs' && method === 'POST') {
       const destination = normalizeUrl(body.destination);
       if (!destination) return json(400, { error: 'URL no válida' });
+      const title = normalizeText(body.title, 120);
+      const folder = normalizeText(body.folder, 60);
       for (let i = 0; i < 5; i++) { // reintenta si el código ya existe
         try {
           const [row] = await sb('qr_codes', {
             method: 'POST',
-            body: JSON.stringify({ code: randomCode(), destination }),
+            body: JSON.stringify({ code: randomCode(), destination, title, folder }),
           });
           return json(201, row);
         } catch (e) {
@@ -112,11 +118,17 @@ exports.handler = async (event) => {
 
     const m = route.match(/^qrs\/([A-Za-z0-9_-]+)$/);
     if (m && method === 'PATCH') {
-      const destination = normalizeUrl(body.destination);
-      if (!destination) return json(400, { error: 'URL no válida' });
+      const patch = { updated_at: new Date().toISOString() };
+      if ('destination' in body) {
+        const destination = normalizeUrl(body.destination);
+        if (!destination) return json(400, { error: 'URL no válida' });
+        patch.destination = destination;
+      }
+      if ('title' in body) patch.title = normalizeText(body.title, 120);
+      if ('folder' in body) patch.folder = normalizeText(body.folder, 60);
       const rows = await sb(`qr_codes?code=eq.${m[1]}`, {
         method: 'PATCH',
-        body: JSON.stringify({ destination, updated_at: new Date().toISOString() }),
+        body: JSON.stringify(patch),
       });
       return rows.length ? json(200, rows[0]) : json(404, { error: 'No existe' });
     }

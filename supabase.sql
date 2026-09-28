@@ -8,6 +8,11 @@ create table if not exists qr_codes (
   updated_at  timestamptz not null default now()
 );
 
+-- Si la tabla ya existía (panel creado antes de esta versión), agrega
+-- las columnas nuevas sin tocar los datos que ya tenés.
+alter table qr_codes add column if not exists title  text;
+alter table qr_codes add column if not exists folder text;
+
 -- Seguridad: bloquea el acceso directo desde el navegador.
 -- Solo las funciones de Netlify (con la service key) pueden leer/escribir.
 alter table qr_codes enable row level security;
