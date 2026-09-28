@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "mkdir -p public && cp node_modules/qrcode/build/qrcode.min.js public/qrcode.min.js"
+    "build": "esbuild node_modules/qrcode/lib/browser.js --bundle --minify --platform=browser --global-name=QRCode --outfile=public/qrcode.min.js && test -s public/qrcode.min.js"
   },
   "dependencies": {
+    "esbuild": "0.21.5",
     "qrcode": "1.5.3"
   }
 }
