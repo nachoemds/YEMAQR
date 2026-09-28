@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js" onerror="var s=document.createElement('script');s.src='https://unpkg.com/qrcode@1.5.3/build/qrcode.min.js';document.head.appendChild(s);"></script>
 <style>
   :root{
     --paper:#FAFAF8;
@@ -500,6 +500,12 @@
 
 <script>
 (function(){
+  if(typeof QRCode==='undefined'){
+    document.addEventListener('DOMContentLoaded',function(){
+      document.body.innerHTML='<div style="padding:40px;font-family:sans-serif;text-align:center">No se pudo cargar la librería de generación de QR (revisá tu conexión a internet o si algún bloqueador está filtrando cdn.jsdelivr.net / unpkg.com).</div>';
+    });
+    return;
+  }
   var TOKEN_KEY='qr_token';
   var items=[];
   var ORIGIN=window.location.origin;
