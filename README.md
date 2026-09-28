@@ -28,3 +28,5 @@ Las Netlify Functions requieren deploy desde Git (o CLI); arrastrar la carpeta n
 - Nunca pongas la `service_role` key en el frontend ni en un repo público.
 - Si borrás un QR, los ya impresos dejan de funcionar.
 - Algunas apps de mensajería o antivirus "previsualizan" links y pueden sumar escaneos de más.
+
+- La librería que dibuja los QR (`qrcode`) se instala en cada deploy (ver `package.json` y `netlify.toml`) y se sirve desde tu propio sitio, así ningún bloqueador de CDN puede afectarla.

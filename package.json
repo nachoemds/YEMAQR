@@ -1,0 +1,11 @@
+{
+  "name": "qr-panel",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "mkdir -p public && cp node_modules/qrcode/build/qrcode.min.js public/qrcode.min.js"
+  },
+  "dependencies": {
+    "qrcode": "1.5.3"
+  }
+}
