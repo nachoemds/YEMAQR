@@ -12,6 +12,7 @@ create table if not exists qr_codes (
 -- las columnas nuevas sin tocar los datos que ya tenés.
 alter table qr_codes add column if not exists title  text;
 alter table qr_codes add column if not exists folder text;
+alter table qr_codes add column if not exists last_scanned_at timestamptz;
 
 -- Seguridad: bloquea el acceso directo desde el navegador.
 -- Solo las funciones de Netlify (con la service key) pueden leer/escribir.
@@ -23,7 +24,8 @@ returns text
 language sql
 as $$
   update qr_codes
-     set scans = scans + 1
+     set scans = scans + 1,
+         last_scanned_at = now()
    where code = p_code
   returning destination;
 $$;
