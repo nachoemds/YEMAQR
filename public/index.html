@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>YemaQR</title>
 <meta name="robots" content="noindex">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='42' fill='%23FFC229'/%3E%3C/svg%3E">
+<link rel="icon" href="/assets/logo-mini.png" type="image/png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -98,29 +98,14 @@
   .brand{
     display:flex;
     align-items:center;
-    gap:10px;
+    gap:9px;
   }
-  .brand-mark{
-    width:30px;height:30px;
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    grid-template-rows:1fr 1fr;
-    gap:3px;
-    flex-shrink:0;
-  }
-  .brand-mark span{ background:var(--ink); border-radius:2px; }
-  .brand-mark span:nth-child(2){ background:var(--signal); }
-  .brand-mark span:nth-child(3){ background:transparent; }
-  .brand h1{
-    font-size:19px;
-    font-weight:700;
-    letter-spacing:-0.01em;
-    margin:0;
-  }
-  .brand p{
-    margin:1px 0 0;
-    font-size:12.5px;
+  .brand-logo{ height:24px; width:auto; display:block; }
+  .brand-by{
+    font-size:12px;
     color:var(--ink-faint);
+    white-space:nowrap;
+    padding-top:2px;
   }
   .btn{
     font-family:var(--font-ui);
@@ -356,6 +341,8 @@
     align-items:center;
   }
   .icon-btn:hover{ color:var(--signal); background:var(--signal-soft); }
+  .link-out{ background:none; border:none; color:var(--ink-faint); font-size:12.5px; cursor:pointer; font-family:var(--font-ui); }
+  .link-out:hover{ color:var(--ink); }
   .scans-cell{
     font-family:var(--font-mono);
     text-align:right;
@@ -433,15 +420,41 @@
   }
   .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
 
-  .login{ position:fixed; inset:0; background:var(--paper); display:none; align-items:center; justify-content:center; padding:20px; z-index:40; }
+  .login{
+    position:fixed; inset:0; z-index:40;
+    background:#0E0F13;
+    display:none;
+    align-items:flex-start;
+    justify-content:center;
+    padding:64px 20px 40px;
+    overflow-y:auto;
+  }
   .login.show{ display:flex; }
-  .login-box{ width:100%; max-width:340px; }
-  .login-box .brand{ margin-bottom:22px; }
-  .login-err{ color:var(--danger); font-size:13px; min-height:18px; margin-top:8px; }
-  .link-out{ background:none; border:none; color:var(--ink-faint); font-size:12.5px; cursor:pointer; font-family:var(--font-ui); }
-  .link-out:hover{ color:var(--ink); }
-  .field input[type=password]{ width:100%; font-size:14px; padding:11px 12px; border-radius:var(--radius-sm); border:1px solid var(--line-strong); background:var(--paper-raised); color:var(--ink); outline:none; }
-  .field input[type=password]:focus{ border-color:var(--signal); box-shadow:0 0 0 3px var(--signal-soft); }
+  .login-box{
+    width:100%; max-width:360px;
+    display:flex; flex-direction:column; align-items:center;
+    text-align:center;
+  }
+  .login-logo{ width:100%; max-width:300px; height:auto; }
+  .login-glow{
+    width:190px; height:10px; margin:2px 0 26px;
+    background:radial-gradient(ellipse at center, rgba(110,140,255,.55) 0%, rgba(110,140,255,0) 75%);
+    filter:blur(2px);
+  }
+  .login-sub{ color:#888C99; font-size:13px; margin:0 0 24px; }
+  .login .field{ width:100%; text-align:left; }
+  .login .field label{ color:#888C99; font-size:12.5px; font-weight:600; display:block; margin-bottom:6px; }
+  .login input[type=password]{
+    width:100%; font-size:14px; padding:12px 14px;
+    border-radius:8px; border:1px solid #33374C;
+    background:#15161D; color:#F1F1EE; outline:none;
+  }
+  .login input[type=password]:focus{ border-color:#6E8CFF; box-shadow:0 0 0 3px rgba(110,140,255,.22); }
+  .login-err{ color:#E37E6B; font-size:13px; min-height:18px; margin-top:8px; }
+  .login-submit{ width:100%; justify-content:center; margin-top:14px; background:#6E8CFF; }
+  .login-submit:hover{ background:#5A72E8; }
+  .login-footer{ color:#494C5A; font-size:11.5px; margin:26px 0 22px; }
+  .login-stamp{ width:140px; height:auto; border-radius:16px; }
 
   /* ---------- Modal de vista previa ---------- */
   .modal{
@@ -472,30 +485,35 @@
   .modal-code{ font-family:var(--font-mono); font-size:12px; color:var(--ink-faint); margin-bottom:8px; }
   .modal-dest{ font-family:var(--font-mono); font-size:13px; color:var(--ink-soft); word-break:break-all; margin-bottom:10px; }
   .modal-stats{ font-size:12.5px; color:var(--ink-faint); margin-bottom:16px; }
+  .modal-stats-row{ display:flex; justify-content:space-between; gap:16px; padding:5px 0; border-bottom:1px dashed var(--line); }
+  .modal-stats-row:last-child{ border-bottom:none; }
+  .modal-stats-row span:first-child{ color:var(--ink-faint); }
+  .modal-stats-row span:last-child{ color:var(--ink-soft); font-weight:600; font-family:var(--font-mono); font-size:12px; }
   .modal-actions{ display:flex; gap:8px; flex-wrap:wrap; justify-content:center; }
 </style>
 </head>
 <body>
 <div class="login" id="login">
   <div class="login-box">
-    <div class="brand"><div class="brand-mark"><span></span><span></span><span></span><span></span></div><div><h1>YemaQR</h1><p>Ingresá para continuar</p></div></div>
+    <img class="login-logo" src="/assets/logo-big.png" alt="YemaQR">
+    <div class="login-glow"></div>
+    <p class="login-sub">Ingresá para continuar</p>
     <div class="field">
       <label for="pw-input">Contraseña</label>
       <input type="password" id="pw-input" autocomplete="current-password">
     </div>
     <div class="login-err" id="login-err"></div>
-    <button class="btn btn-primary" id="login-btn" style="width:100%;justify-content:center;margin-top:6px;">Entrar</button>
+    <button class="btn btn-primary login-submit" id="login-btn">Entrar</button>
+    <p class="login-footer">2026 © by Blacko</p>
+    <img class="login-stamp" src="/assets/yemix-qr.png" alt="">
   </div>
 </div>
 <div class="shell">
 
   <div class="topbar">
     <div class="brand">
-      <div class="brand-mark"><span></span><span></span><span></span><span></span></div>
-      <div>
-        <h1>YemaQR</h1>
-        <p>by Blacko</p>
-      </div>
+      <img class="brand-logo" src="/assets/logo-mini.png" alt="YemaQR">
+      <span class="brand-by">by Blacko</span>
     </div>
     <div style="display:flex;gap:12px;align-items:center;">
     <button class="link-out" id="logout-btn">Salir</button>
@@ -541,6 +559,12 @@
     </div>
     <select class="folder-select" id="folder-filter">
       <option value="">Todas las carpetas</option>
+    </select>
+    <select class="folder-select" id="sort-select">
+      <option value="recent">Más nuevos</option>
+      <option value="name">Nombre (A-Z)</option>
+      <option value="folder">Carpeta (A-Z)</option>
+      <option value="scans">Más escaneados</option>
     </select>
     <span class="count-tag" id="count-tag">0 códigos</span>
   </div>
@@ -601,7 +625,7 @@
   function $(id){return document.getElementById(id);}
   var toggleBtn=$('toggle-panel-btn'), emptyCreateBtn=$('empty-create-btn'), cancelBtn=$('cancel-btn'), createBtn=$('create-btn');
   var panel=$('create-panel'), destInput=$('dest-input'), previewHolder=$('preview-holder'), searchInput=$('search-input');
-  var titleInput=$('title-input'), folderInput=$('folder-input'), folderOptions=$('folder-options'), folderFilter=$('folder-filter');
+  var titleInput=$('title-input'), folderInput=$('folder-input'), folderOptions=$('folder-options'), folderFilter=$('folder-filter'), sortSelect=$('sort-select');
   var tableBody=$('table-body'), mobileList=$('mobile-list'), tableWrap=$('table-wrap'), emptyState=$('empty-state');
   var countTag=$('count-tag'), toast=$('toast'), loginEl=$('login'), pwInput=$('pw-input'), loginErr=$('login-err');
   var previewModal=$('preview-modal'), modalCanvas=$('modal-canvas'), modalTitle=$('modal-title'), modalCode=$('modal-code');
@@ -748,7 +772,10 @@
     modalTitle.classList.toggle('untitled',!item.title);
     modalCode.textContent=item.code+(item.folder?' · '+item.folder:'');
     modalDest.textContent=item.destination.replace(/^https?:\/\//,'');
-    modalStats.textContent=item.scans+(item.scans===1?' escaneo':' escaneos')+' · creado '+fmtDate(item.created_at);
+    modalStats.innerHTML=
+      '<div class="modal-stats-row"><span>Escaneos</span><span>'+item.scans+'</span></div>'+
+      '<div class="modal-stats-row"><span>Último escaneo</span><span>'+(item.last_scanned_at?fmtDate(item.last_scanned_at):'Todavía no')+'</span></div>'+
+      '<div class="modal-stats-row"><span>Creado</span><span>'+fmtDate(item.created_at)+'</span></div>';
     renderQRTo(modalCanvas,item,220);
     previewModal.classList.add('show');
   }
@@ -782,6 +809,27 @@
     folderOptions.innerHTML=folders.map(function(f){return '<option value="'+f.replace(/"/g,'&quot;')+'">';}).join('');
   }
 
+  function sortList(list,mode){
+    var copy=list.slice();
+    if(mode==='name'){
+      copy.sort(function(a,b){ return (a.title||a.code).localeCompare(b.title||b.code,'es',{sensitivity:'base'}); });
+    } else if(mode==='folder'){
+      copy.sort(function(a,b){
+        var fa=a.folder||'', fb=b.folder||'';
+        if(!fa && fb) return 1;
+        if(fa && !fb) return -1;
+        var c=fa.localeCompare(fb,'es',{sensitivity:'base'});
+        if(c!==0) return c;
+        return (a.title||a.code).localeCompare(b.title||b.code,'es',{sensitivity:'base'});
+      });
+    } else if(mode==='scans'){
+      copy.sort(function(a,b){ return b.scans-a.scans; });
+    } else {
+      copy.sort(function(a,b){ return new Date(b.created_at)-new Date(a.created_at); });
+    }
+    return copy;
+  }
+
   function render(){
     populateFolderFilter();
     var q=searchInput.value.trim().toLowerCase();
@@ -792,6 +840,7 @@
       var matchesFolder=!fFolder || i.folder===fFolder;
       return matchesQ && matchesFolder;
     });
+    filtered=sortList(filtered,sortSelect.value);
     countTag.textContent=(filtered.length!==items.length ? filtered.length+' de '+items.length : items.length)+(items.length===1?' código':' códigos');
 
     if(items.length===0){
@@ -860,6 +909,7 @@
   }
   searchInput.addEventListener('input',render);
   folderFilter.addEventListener('change',render);
+  sortSelect.addEventListener('change',render);
 
   if(typeof QRCode==='undefined'){ showToast('Falta qrcode.min.js: revisá que el deploy en Netlify haya terminado bien'); }
   if(getToken()){ hideLogin(); loadItems(); } else { showLogin(); }
