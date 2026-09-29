@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>YemaQR</title>
 <meta name="robots" content="noindex">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='42' fill='%23FFC229'/%3E%3C/svg%3E"><link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="icon" href="/assets/logo-mini.png" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="/qrcode.min.js"></script>
@@ -342,10 +343,17 @@
   .icon-btn:hover{ color:var(--signal); background:var(--signal-soft); }
   .link-out{ background:none; border:none; color:var(--ink-faint); font-size:12.5px; cursor:pointer; font-family:var(--font-ui); }
   .link-out:hover{ color:var(--ink); }
+  .session-user{ font-size:12.5px; color:var(--ink-soft); font-weight:600; }
+  .session-user .admin-badge{ font-weight:600; color:var(--signal); margin-left:4px; }
   .scans-cell{
     font-family:var(--font-mono);
     text-align:right;
     font-weight:600;
+  }
+  .owner-cell{
+    font-family:var(--font-mono);
+    font-size:12.5px;
+    color:var(--ink-soft);
   }
   .date-cell{
     font-size:12.5px;
@@ -443,12 +451,12 @@
   .login-sub{ color:#888C99; font-size:13px; margin:0 0 24px; }
   .login .field{ width:100%; text-align:left; }
   .login .field label{ color:#888C99; font-size:12.5px; font-weight:600; display:block; margin-bottom:6px; }
-  .login input[type=password]{
+  .login input[type=password], .login input[type=text]{
     width:100%; font-size:14px; padding:12px 14px;
     border-radius:8px; border:1px solid #33374C;
     background:#15161D; color:#F1F1EE; outline:none;
   }
-  .login input[type=password]:focus{ border-color:#6E8CFF; box-shadow:0 0 0 3px rgba(110,140,255,.22); }
+  .login input[type=password]:focus, .login input[type=text]:focus{ border-color:#6E8CFF; box-shadow:0 0 0 3px rgba(110,140,255,.22); }
   .login-err{ color:#E37E6B; font-size:13px; min-height:18px; margin-top:8px; }
   .login-submit{ width:100%; justify-content:center; margin-top:14px; background:#6E8CFF; }
   .login-submit:hover{ background:#5A72E8; }
@@ -495,8 +503,12 @@
 <div class="login" id="login">
   <div class="login-box">
     <img class="login-logo" src="/assets/logo-big.png" alt="YemaQR">
-    
+    <div class="login-glow"></div>
     <p class="login-sub">Ingresá para continuar</p>
+    <div class="field">
+      <label for="user-input">Usuario</label>
+      <input type="text" id="user-input" autocomplete="username" autocapitalize="off" spellcheck="false" style="margin-bottom:14px;">
+    </div>
     <div class="field">
       <label for="pw-input">Contraseña</label>
       <input type="password" id="pw-input" autocomplete="current-password">
@@ -515,6 +527,7 @@
       <span class="brand-by">by Blacko</span>
     </div>
     <div style="display:flex;gap:12px;align-items:center;">
+    <span class="session-user" id="session-user"></span>
     <button class="link-out" id="logout-btn">Salir</button>
     <button class="btn btn-primary" id="toggle-panel-btn">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
@@ -575,6 +588,7 @@
           <th></th>
           <th>Título / Código</th>
           <th>Carpeta</th>
+          <th id="th-owner" style="display:none;">Usuario</th>
           <th>Destino</th>
           <th class="num">Escaneos</th>
           <th>Creado</th>
@@ -617,21 +631,37 @@
 
 <script>
 (function(){
-  var TOKEN_KEY='qr_token';
+  var TOKEN_KEY='qr_token', USER_KEY='qr_user', ADMIN_KEY='qr_is_admin';
   var items=[];
   var ORIGIN=window.location.origin;
+  var session={username:null,isAdmin:false};
 
   function $(id){return document.getElementById(id);}
   var toggleBtn=$('toggle-panel-btn'), emptyCreateBtn=$('empty-create-btn'), cancelBtn=$('cancel-btn'), createBtn=$('create-btn');
   var panel=$('create-panel'), destInput=$('dest-input'), previewHolder=$('preview-holder'), searchInput=$('search-input');
   var titleInput=$('title-input'), folderInput=$('folder-input'), folderOptions=$('folder-options'), folderFilter=$('folder-filter'), sortSelect=$('sort-select');
   var tableBody=$('table-body'), mobileList=$('mobile-list'), tableWrap=$('table-wrap'), emptyState=$('empty-state');
-  var countTag=$('count-tag'), toast=$('toast'), loginEl=$('login'), pwInput=$('pw-input'), loginErr=$('login-err');
+  var countTag=$('count-tag'), toast=$('toast'), loginEl=$('login'), userInput=$('user-input'), pwInput=$('pw-input'), loginErr=$('login-err');
   var previewModal=$('preview-modal'), modalCanvas=$('modal-canvas'), modalTitle=$('modal-title'), modalCode=$('modal-code');
-  var modalDest=$('modal-dest'), modalStats=$('modal-stats');
+  var modalDest=$('modal-dest'), modalStats=$('modal-stats'), sessionUserEl=$('session-user'), thOwner=$('th-owner');
 
   function getToken(){ try{return localStorage.getItem(TOKEN_KEY);}catch(e){return null;} }
-  function setToken(t){ try{ t?localStorage.setItem(TOKEN_KEY,t):localStorage.removeItem(TOKEN_KEY);}catch(e){} }
+  function saveSession(t,username,isAdmin){
+    try{
+      if(t){ localStorage.setItem(TOKEN_KEY,t); localStorage.setItem(USER_KEY,username); localStorage.setItem(ADMIN_KEY,isAdmin?'1':'0'); }
+      else{ localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(USER_KEY); localStorage.removeItem(ADMIN_KEY); }
+    }catch(e){}
+    session.username=t?username:null;
+    session.isAdmin=t?!!isAdmin:false;
+    sessionUserEl.innerHTML=session.username?(session.username+(session.isAdmin?' <span class="admin-badge">· admin</span>':'')):'';
+    thOwner.style.display=session.isAdmin?'':'none';
+  }
+  function restoreSession(){
+    var t=getToken();
+    if(!t) return false;
+    try{ saveSession(t, localStorage.getItem(USER_KEY), localStorage.getItem(ADMIN_KEY)==='1'); }catch(e){ return false; }
+    return true;
+  }
 
   function showToast(msg){
     toast.textContent=msg; toast.classList.add('show');
@@ -645,7 +675,7 @@
     if(body) opts.body=JSON.stringify(body);
     return fetch('/api/'+path,opts).then(function(r){
       return r.json().catch(function(){return {};}).then(function(data){
-        if(r.status===401 && path!=='login'){ setToken(null); showLogin(); throw new Error('Sesión vencida'); }
+        if(r.status===401 && path!=='login'){ saveSession(null); showLogin(); throw new Error('Sesión vencida'); }
         if(!r.ok) throw new Error(data.error||'Error');
         return data;
       });
@@ -659,17 +689,20 @@
   }
 
   // ---------- login ----------
-  function showLogin(){ loginEl.classList.add('show'); pwInput.value=''; pwInput.focus(); }
+  function showLogin(){ loginEl.classList.add('show'); pwInput.value=''; userInput.focus(); }
   function hideLogin(){ loginEl.classList.remove('show'); }
   function doLogin(){
     loginErr.textContent='';
-    api('POST','login',{password:pwInput.value}).then(function(d){
-      setToken(d.token); hideLogin(); loadItems();
+    var u=userInput.value.trim();
+    if(!u){ loginErr.textContent='Ingresá tu usuario'; userInput.focus(); return; }
+    api('POST','login',{username:u,password:pwInput.value}).then(function(d){
+      saveSession(d.token,d.username,d.isAdmin); hideLogin(); loadItems();
     }).catch(function(e){ loginErr.textContent=e.message; });
   }
   $('login-btn').addEventListener('click',doLogin);
+  userInput.addEventListener('keydown',function(e){ if(e.key==='Enter') pwInput.focus(); });
   pwInput.addEventListener('keydown',function(e){ if(e.key==='Enter') doLogin(); });
-  $('logout-btn').addEventListener('click',function(){ setToken(null); items=[]; render(); showLogin(); });
+  $('logout-btn').addEventListener('click',function(){ saveSession(null); items=[]; render(); showLogin(); });
 
   // ---------- datos ----------
   function loadItems(){
@@ -867,6 +900,10 @@
       fWrap.appendChild(iconBtn('edit','Editar carpeta',function(){startEditField(item,'folder',fWrap,{inputClass:'dest-input',placeholder:'Carpeta'});}));
       tdFolder.appendChild(fWrap); tr.appendChild(tdFolder);
 
+      if(session.isAdmin){
+        tr.appendChild(td('owner-cell',item.owner||'—'));
+      }
+
       var tdDest=td(); var wrap=document.createElement('div'); wrap.className='dest-cell';
       var txt=document.createElement('span'); txt.className='dest-text'; txt.textContent=item.destination.replace(/^https?:\/\//,''); txt.title=item.destination;
       wrap.appendChild(txt); wrap.appendChild(iconBtn('edit','Editar destino',function(){startEditDest(item.code,wrap,false);}));
@@ -891,6 +928,7 @@
       var canvas=document.createElement('canvas'); canvas.addEventListener('click',function(){openPreview(item);}); card.appendChild(canvas);
       var body=document.createElement('div'); body.className='mcard-body';
       if(item.folder){ var chipM=document.createElement('span'); chipM.className='folder-tag mcard-folder'; chipM.textContent=item.folder; body.appendChild(chipM); }
+      if(session.isAdmin){ var ownerM=document.createElement('span'); ownerM.className='folder-tag mcard-folder'; ownerM.style.background='var(--paper)'; ownerM.style.color='var(--ink-soft)'; ownerM.textContent='Usuario: '+(item.owner||'—'); body.appendChild(ownerM); }
       var top=document.createElement('div'); top.className='mcard-top';
       var c=document.createElement('span'); c.className='mcard-code'; c.textContent=item.title?item.title+' · '+item.code:item.code;
       var sc=document.createElement('span'); sc.className='mcard-scans'; sc.textContent=item.scans+(item.scans===1?' escaneo':' escaneos');
@@ -911,7 +949,7 @@
   sortSelect.addEventListener('change',render);
 
   if(typeof QRCode==='undefined'){ showToast('Falta qrcode.min.js: revisá que el deploy en Netlify haya terminado bien'); }
-  if(getToken()){ hideLogin(); loadItems(); } else { showLogin(); }
+  if(restoreSession()){ hideLogin(); loadItems(); } else { showLogin(); }
 })();
 </script>
 </body>
